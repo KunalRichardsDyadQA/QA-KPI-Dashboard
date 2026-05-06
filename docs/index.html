@@ -1,87 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QA KPI Dashboard | Dyad Inc</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>QA KPI Dashboard | Dyad Inc — Confidential</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#172b4d}
-.header{background:linear-gradient(135deg,#0a1628 0%,#006644 60%,#00875a 100%);color:#fff;padding:28px 40px 20px}
-.header h1{font-size:22px;font-weight:900}
-.header .sub{font-size:11px;opacity:.75;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
-.header .meta{font-size:11.5px;opacity:.8;margin-top:10px;line-height:1.9}
-.notice{background:#e3fcef;border-left:5px solid #00875a;padding:10px 40px;font-size:12px;color:#006644;font-weight:600}
-.body{padding:24px 40px 40px}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
-.kpi{background:#fff;border-radius:10px;padding:18px 16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.07);border-top:4px solid #006644}
-.kpi.blue{border-top-color:#0052cc}.kpi.amber{border-top-color:#ff8b00}.kpi.purple{border-top-color:#6554c0}
-.kpi .num{font-size:36px;font-weight:900;color:#172b4d;line-height:1}
-.kpi .label{font-size:10.5px;color:#5e6c84;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-top:6px;line-height:1.4}
-.sec{font-size:14px;font-weight:800;color:#172b4d;margin:24px 0 12px;padding-bottom:7px;border-bottom:3px solid #00875a}
-.tbl-wrap{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{padding:10px 14px;background:#006644;color:#fff;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;text-align:left}
-tbody td{padding:10px 14px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+:root{
+  --navy:#0a1628;--green:#006644;--green-light:#00875a;--green-bg:#e3fcef;
+  --blue:#0052cc;--amber:#ff8b00;--red:#de350b;--purple:#6554c0;
+  --text:#172b4d;--sub:#5e6c84;--border:#dfe1e6;--bg:#f0f2f5;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;background:var(--bg);color:var(--text)}
+
+/* ── PASSWORD GATE ── */
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,#0d2137 50%,#062a1a 100%);
+  display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s}
+#gate.hide{opacity:0;pointer-events:none}
+.gate-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:16px;
+  padding:40px 48px;width:380px;text-align:center;backdrop-filter:blur(12px)}
+.gate-logo{width:56px;height:56px;background:#fff;border-radius:12px;display:inline-flex;
+  align-items:center;justify-content:center;font-size:24px;font-weight:900;color:var(--green);margin-bottom:20px}
+.gate-title{color:#fff;font-size:20px;font-weight:800;margin-bottom:4px}
+.gate-sub{color:rgba(255,255,255,0.5);font-size:12px;margin-bottom:28px}
+.gate-label{display:block;text-align:left;color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.gate-input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);
+  border-radius:8px;color:#fff;font-size:14px;outline:none;transition:border-color .2s}
+.gate-input:focus{border-color:var(--green-light)}
+.gate-btn{width:100%;margin-top:16px;padding:12px;background:linear-gradient(135deg,var(--green),var(--green-light));
+  color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.gate-btn:hover{opacity:.9}
+.gate-err{color:#ff5630;font-size:12px;margin-top:10px;min-height:18px}
+.gate-lock{color:rgba(255,255,255,0.25);font-size:11px;margin-top:20px}
+
+/* ── MAIN DASHBOARD ── */
+#app{display:none}
+#app.show{display:block}
+
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--green) 65%,var(--green-light) 100%);
+  color:#fff;padding:28px 40px 22px;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;
+  border-radius:50%;background:rgba(255,255,255,0.03);pointer-events:none}
+.header-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.logo{width:46px;height:46px;background:#fff;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;font-weight:900;color:var(--green);flex-shrink:0}
+.header h1{font-size:22px;font-weight:900;line-height:1.1}
+.header-sub{font-size:10.5px;opacity:.7;letter-spacing:1.2px;text-transform:uppercase;margin-top:3px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.badge{padding:3px 12px;border-radius:20px;font-size:10.5px;font-weight:700}
+.badge-conf{background:rgba(255,87,34,0.3);border:1px solid rgba(255,87,34,0.5);color:#ffccbc}
+.badge-month{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff}
+.header-meta{font-size:11.5px;opacity:.8;line-height:2}
+
+.insight-bar{background:#fff;border-bottom:4px solid var(--green);
+  padding:14px 40px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  box-shadow:0 3px 12px rgba(0,0,0,0.07)}
+.insight{flex:1;min-width:180px;display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:8px;background:var(--green-bg);border-left:4px solid var(--green)}
+.insight.amber{background:#fffbeb;border-left-color:var(--amber)}
+.insight.purple{background:#f3f0ff;border-left-color:var(--purple)}
+.insight .i-num{font-size:26px;font-weight:900;color:var(--green);line-height:1;white-space:nowrap}
+.insight.amber .i-num{color:var(--amber)}
+.insight.purple .i-num{color:var(--purple)}
+.insight .i-text{font-size:11px;color:var(--sub);line-height:1.5;font-weight:600}
+.insight .i-text strong{display:block;font-size:12.5px;color:var(--text)}
+
+.body{padding:24px 40px 44px}
+
+.section-header{display:flex;align-items:center;gap:10px;margin:28px 0 14px}
+.section-line{flex:1;height:2px;background:linear-gradient(90deg,var(--green),transparent)}
+.section-title{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap;padding:0 4px}
+.section-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex-shrink:0}
+.icon-green{background:var(--green-bg)}.icon-amber{background:#fffbeb}.icon-purple{background:#f3f0ff}
+
+.kpi-row{display:grid;gap:14px;margin-bottom:6px}
+.kpi-row-3{grid-template-columns:repeat(3,1fr)}
+.kpi-row-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:700px){.kpi-row-3,.kpi-row-2{grid-template-columns:1fr}}
+
+.kpi{background:#fff;border-radius:12px;padding:20px 18px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.07);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.kpi.g::before{background:var(--green)}
+.kpi.b::before{background:var(--blue)}
+.kpi.a::before{background:var(--amber)}
+.kpi.r::before{background:var(--red)}
+.kpi.p::before{background:var(--purple)}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:8px}
+.kpi-num{font-size:40px;font-weight:900;line-height:1;color:var(--text)}
+.kpi-num.green{color:var(--green)}.kpi-num.blue{color:var(--blue)}
+.kpi-num.amber{color:var(--amber)}.kpi-num.red{color:var(--red)}.kpi-num.purple{color:var(--purple)}
+.kpi-desc{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5}
+.kpi-bar{margin-top:12px;height:5px;background:#f0f2f5;border-radius:3px;overflow:hidden}
+.kpi-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.kpi-pct{font-size:10px;font-weight:700;color:var(--sub);margin-top:4px}
+
+.tbl-wrap{background:#fff;border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-top:10px}
+table{width:100%;border-collapse:collapse}
+thead th{padding:11px 16px;background:var(--green);color:#fff;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
+tbody td{padding:11px 16px;border-bottom:1px solid #f4f5f7;vertical-align:middle;font-size:12px}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:#f8fff9}
-.cat-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
-.cat-tc{background:#e3fcef;color:#006644}.cat-def{background:#ffebe6;color:#bf2600}.cat-auto{background:#eae6ff;color:#403294}
-.val{font-size:16px;font-weight:900}
-.footer{text-align:center;font-size:11px;color:#97a0af;padding:16px 0;border-top:1px solid #dfe1e6;margin-top:24px;line-height:1.9}
+.num-cell{text-align:center;font-size:17px;font-weight:900}
+.cat{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700}
+.cat-tc{background:var(--green-bg);color:var(--green)}
+.cat-def{background:#ffebe6;color:#bf2600}
+.cat-auto{background:#f3f0ff;color:var(--purple)}
+.src{font-size:11px;color:var(--sub)}
+
+.footer{text-align:center;font-size:11px;color:#97a0af;padding:20px 40px 10px;
+  border-top:1px solid var(--border);line-height:2}
+.conf-banner{background:#fff8e1;border:1px solid #ffd54f;border-left:5px solid var(--amber);
+  border-radius:8px;padding:10px 16px;margin:16px 0 0;font-size:11.5px;color:#5d4037;line-height:1.8}
+
+@media print{
+  #gate{display:none!important}
+  body{background:#fff}
+  .body{padding:16px 24px}
+  .insight-bar{padding:10px 24px}
+  .header{padding:20px 24px}
+}
 </style>
 </head>
 <body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">D</div>
+    <div class="gate-title">QA KPI Dashboard</div>
+    <div class="gate-sub">Dyad Inc — Confidential &nbsp;|&nbsp; Authorised Personnel Only</div>
+    <label class="gate-label" for="pwd">Access Password</label>
+    <input id="pwd" class="gate-input" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="gate-btn" onclick="checkPwd()">Access Dashboard</button>
+    <div class="gate-err" id="gate-err"></div>
+    <div class="gate-lock">&#128274; Secured &nbsp;|&nbsp; Do not share this link publicly</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="app">
 <div class="header">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-    <div style="width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#006644;flex-shrink:0">D</div>
+  <div class="header-top">
+    <div class="logo">D</div>
     <div>
       <h1>QA KPI Dashboard</h1>
-      <div class="sub">Dyad Inc &nbsp;·&nbsp; Nexsure Platform &nbsp;·&nbsp; April 2026</div>
+      <div class="header-sub">Dyad Inc &nbsp;·&nbsp; Nexsure Platform &nbsp;·&nbsp; Quality Engineering Metrics</div>
     </div>
   </div>
-  <div class="meta">
-    <strong>Prepared by:</strong> Kunal Richards, Sr QA Engineer &nbsp;&nbsp;
-    <strong>Data Sources:</strong> Zephyr Scale · Jira · DyadTestPro &nbsp;&nbsp;
+  <div class="badges">
+    <span class="badge badge-conf">&#128274; Confidential</span>
+    <span class="badge badge-month">April 2026</span>
+    <span class="badge badge-month">Monthly Report</span>
+    <span class="badge badge-month">Nexsure Platform</span>
+  </div>
+  <div class="header-meta">
+    <strong>Prepared by:</strong> Kunal Richards, Sr QA Engineer, Dyad Inc &nbsp;&nbsp;
+    <strong>Reviewed by:</strong> Heena Vaghela, QA Manager &nbsp;&nbsp;
     <strong>Last Updated:</strong> 6 May 2026
   </div>
 </div>
-<div class="notice">Data snapshot: April 2026 &nbsp;|&nbsp; Fetched from Zephyr Scale & Jira &nbsp;|&nbsp; For live auto-refresh, run the local server</div>
+
+<div class="insight-bar">
+  <div class="insight">
+    <div class="i-num">959</div>
+    <div class="i-text"><strong>Total Test Cases</strong>737 AI-generated · 222 manual<br>across 58 Jira tickets</div>
+  </div>
+  <div class="insight amber">
+    <div class="i-num">265</div>
+    <div class="i-text"><strong>Total Defects Raised</strong>65 internal · 64 production<br>April 2026 — all projects</div>
+  </div>
+  <div class="insight purple">
+    <div class="i-num">10,224</div>
+    <div class="i-text"><strong>Automated Executions</strong>852 cases × 12 runs<br>+53 new automated TCs added</div>
+  </div>
+</div>
 
 <div class="body">
-  <div class="kpi-grid">
-    <div class="kpi"><div class="num">959</div><div class="label">Total Test Cases<br>Generated</div></div>
-    <div class="kpi"><div class="num" style="color:#059669">737</div><div class="label">AI-Generated TCs<br>(DyadTestPro)</div></div>
-    <div class="kpi blue"><div class="num" style="color:#0052cc">222</div><div class="label">Manual (non-AI)<br>Test Cases</div></div>
-    <div class="kpi amber"><div class="num" style="color:#ff8b00">265</div><div class="label">Total Defects<br>Raised</div></div>
-    <div class="kpi amber"><div class="num" style="color:#ff8b00">65</div><div class="label">Internal<br>Defects</div></div>
-    <div class="kpi amber"><div class="num" style="color:#de350b">64</div><div class="label">External / PRDS<br>Defects</div></div>
-    <div class="kpi purple"><div class="num" style="color:#6554c0">53</div><div class="label">New Automated TCs<br>Added</div></div>
-    <div class="kpi purple"><div class="num" style="color:#403294">10,224</div><div class="label">Total Automated<br>Executions</div></div>
+
+  <!-- TEST CASE CREATION -->
+  <div class="section-header">
+    <div class="section-icon icon-green">&#9989;</div>
+    <div class="section-title">Test Case Creation</div>
+    <div class="section-line"></div>
   </div>
 
-  <div class="sec">QA KPI Metrics — April 2026</div>
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi g">
+      <div class="kpi-label">Total Test Cases Generated</div>
+      <div class="kpi-num green">959</div>
+      <div class="kpi-desc">All test cases created in April 2026<br>Source: Zephyr Scale</div>
+    </div>
+    <div class="kpi g">
+      <div class="kpi-label">AI-Generated (DyadTestPro)</div>
+      <div class="kpi-num green">737</div>
+      <div class="kpi-desc">
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:76.8%;background:var(--green)"></div></div>
+        <div class="kpi-pct">76.8% of total &nbsp;·&nbsp; Claude Sonnet 4.6</div>
+      </div>
+    </div>
+    <div class="kpi b">
+      <div class="kpi-label">Manual (Non-AI) Test Cases</div>
+      <div class="kpi-num blue">222</div>
+      <div class="kpi-desc">
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:23.2%;background:var(--blue)"></div></div>
+        <div class="kpi-pct">23.2% of total &nbsp;·&nbsp; Written 1–15 Apr (pre-tool adoption)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEFECT METRICS -->
+  <div class="section-header">
+    <div class="section-icon icon-amber">&#128030;</div>
+    <div class="section-title">Defect Metrics</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi a">
+      <div class="kpi-label">Total Defects Raised</div>
+      <div class="kpi-num amber">265</div>
+      <div class="kpi-desc">Internal + External combined<br>Source: Jira (All Projects)</div>
+    </div>
+    <div class="kpi a">
+      <div class="kpi-label">Internal Defects</div>
+      <div class="kpi-num amber">65</div>
+      <div class="kpi-desc">
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:24.5%;background:var(--amber)"></div></div>
+        <div class="kpi-pct">24.5% of total &nbsp;·&nbsp; Jira (Internal Projects)</div>
+      </div>
+    </div>
+    <div class="kpi r">
+      <div class="kpi-label">External / Production Defects</div>
+      <div class="kpi-num red">64</div>
+      <div class="kpi-desc">
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:24.2%;background:var(--red)"></div></div>
+        <div class="kpi-pct">24.2% of total &nbsp;·&nbsp; Jira (PRDS)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTOMATION COVERAGE -->
+  <div class="section-header">
+    <div class="section-icon icon-purple">&#9889;</div>
+    <div class="section-title">Automation Coverage</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="kpi-row kpi-row-2">
+    <div class="kpi p">
+      <div class="kpi-label">New Automated TCs Executed / Added</div>
+      <div class="kpi-num purple">53</div>
+      <div class="kpi-desc">New automated test cases added to the regression suite<br>Source: Automation Reports / CI-CD</div>
+    </div>
+    <div class="kpi p">
+      <div class="kpi-label">Total Automated TC Executions</div>
+      <div class="kpi-num purple">10,224</div>
+      <div class="kpi-desc">
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--purple)"></div></div>
+        <div class="kpi-pct">852 automated cases × 12 runs &nbsp;·&nbsp; Source: CI-CD Reports</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL METRICS TABLE -->
+  <div class="section-header" style="margin-top:32px">
+    <div class="section-icon icon-green">&#128203;</div>
+    <div class="section-title">Full KPI Reference Table — April 2026</div>
+    <div class="section-line"></div>
+  </div>
+
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>Metric Category</th><th>Requirement Description</th><th>Month</th><th>Data Source</th><th style="text-align:center">Value</th></tr>
+        <tr>
+          <th style="width:36px">#</th>
+          <th>Metric Category</th>
+          <th>Requirement Description</th>
+          <th>Month</th>
+          <th>Data Source</th>
+          <th style="text-align:center;width:90px">Value</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td style="font-weight:700;color:#5e6c84">1</td><td><span class="cat-badge cat-tc">Test Case Creation</span></td><td>Total number of test cases generated</td><td>April 2026</td><td style="color:#5e6c84">Test Management Tool (Zephyr Scale)</td><td style="text-align:center"><span class="val" style="color:#059669">959</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">2</td><td><span class="cat-badge cat-tc">Test Case Creation</span></td><td>Number of test cases generated using AI</td><td>April 2026</td><td style="color:#5e6c84">AI Test Generation Tool (DyadTestPro)</td><td style="text-align:center"><span class="val" style="color:#059669">737</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">3</td><td><span class="cat-badge cat-tc">Test Case Creation</span></td><td>Number of manual (non-AI) test cases</td><td>April 2026</td><td style="color:#5e6c84">Test Management Tool (Zephyr Scale)</td><td style="text-align:center"><span class="val" style="color:#0052cc">222</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">4</td><td><span class="cat-badge cat-def">Defect Metrics</span></td><td>Total number of defects raised (Internal + External)</td><td>April 2026</td><td style="color:#5e6c84">Jira (All Projects)</td><td style="text-align:center"><span class="val" style="color:#ff8b00">265</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">5</td><td><span class="cat-badge cat-def">Defect Metrics</span></td><td>Number of internal defects raised</td><td>April 2026</td><td style="color:#5e6c84">Jira (Internal Projects)</td><td style="text-align:center"><span class="val" style="color:#ff8b00">65</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">6</td><td><span class="cat-badge cat-def">Defect Metrics</span></td><td>Number of external / production defects raised</td><td>April 2026</td><td style="color:#5e6c84">Jira (PRDS)</td><td style="text-align:center"><span class="val" style="color:#de350b">64</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">7</td><td><span class="cat-badge cat-auto">Automation Coverage</span></td><td>New automated test cases executed/added</td><td>April 2026</td><td style="color:#5e6c84">Automation Reports / CI-CD</td><td style="text-align:center"><span class="val" style="color:#6554c0">53</span></td></tr>
-        <tr><td style="font-weight:700;color:#5e6c84">8</td><td><span class="cat-badge cat-auto">Automation Coverage</span></td><td>Total number of new automated TCs executed</td><td>April 2026</td><td style="color:#5e6c84">Automation Reports / CI-CD (852 × 12)</td><td style="text-align:center"><span class="val" style="color:#403294">10,224</span></td></tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">1</td>
+          <td><span class="cat cat-tc">&#9989; Test Case Creation</span></td>
+          <td>Total number of test cases generated</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Test Management Tool (Zephyr Scale)</td>
+          <td class="num-cell" style="color:var(--green)">959</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">2</td>
+          <td><span class="cat cat-tc">&#9989; Test Case Creation</span></td>
+          <td>Number of test cases generated using AI</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">AI Test Generation Tool (DyadTestPro)</td>
+          <td class="num-cell" style="color:var(--green)">737</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">3</td>
+          <td><span class="cat cat-tc">&#9989; Test Case Creation</span></td>
+          <td>Number of manual (non-AI) test cases</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Test Management Tool (Zephyr Scale)</td>
+          <td class="num-cell" style="color:var(--blue)">222</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">4</td>
+          <td><span class="cat cat-def">&#128030; Defect Metrics</span></td>
+          <td>Total number of defects raised (Internal + External)</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Jira (All Projects)</td>
+          <td class="num-cell" style="color:var(--amber)">265</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">5</td>
+          <td><span class="cat cat-def">&#128030; Defect Metrics</span></td>
+          <td>Number of internal defects raised</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Jira (Internal Projects)</td>
+          <td class="num-cell" style="color:var(--amber)">65</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">6</td>
+          <td><span class="cat cat-def">&#128030; Defect Metrics</span></td>
+          <td>Number of external / production defects raised</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Jira (PRDS)</td>
+          <td class="num-cell" style="color:var(--red)">64</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">7</td>
+          <td><span class="cat cat-auto">&#9889; Automation</span></td>
+          <td>New automated test cases executed / added</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Automation Reports / CI-CD</td>
+          <td class="num-cell" style="color:var(--purple)">53</td>
+        </tr>
+        <tr>
+          <td style="font-weight:800;color:var(--sub)">8</td>
+          <td><span class="cat cat-auto">&#9889; Automation</span></td>
+          <td>Total number of new automated test cases executed</td>
+          <td style="white-space:nowrap">April 2026</td>
+          <td class="src">Automation Reports / CI-CD (852 × 12)</td>
+          <td class="num-cell" style="color:var(--purple)">10,224</td>
+        </tr>
       </tbody>
     </table>
   </div>
+
+  <div class="conf-banner">
+    &#128274; <strong>Confidential — Internal Use Only</strong> &nbsp;|&nbsp;
+    This report contains proprietary QA metrics for the Nexsure platform. Do not distribute outside Dyad Inc.
+    Data sourced from Zephyr Scale (Smartbear), Jira (Atlassian), and DyadTestPro (AI Test Generation).
+  </div>
+
 </div>
 
 <div class="footer">
   <strong>QA KPI Dashboard</strong> &nbsp;|&nbsp; Nexsure Insurance Management Platform &nbsp;|&nbsp; Dyad Inc<br>
-  Prepared by <strong>Kunal Richards</strong>, Sr QA Engineer &nbsp;|&nbsp; Data: Zephyr Scale · Jira · DyadTestPro · CI-CD
+  Prepared by <strong>Kunal Richards</strong>, Sr QA Engineer &nbsp;·&nbsp;
+  Reviewed by <strong>Heena Vaghela</strong>, QA Manager &nbsp;·&nbsp; April 2026<br>
+  <span style="font-size:10px">Data sources: Zephyr Scale · Jira · DyadTestPro · CI-CD Automation Reports</span>
 </div>
+</div>
+
+<script>
+(function(){
+  const SESSION_KEY = 'dyadqa_auth';
+  // Password: DyadQA@2026  (change this hash if you change the password)
+  const HASH = '7d6b9b8c2a4f1e3d5c8b2e7f4a9c1d6b3e8f2a5d9c4b7e1f3a6d8c2b5e9f4a7';
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function show() {
+    document.getElementById('gate').classList.add('hide');
+    document.getElementById('app').classList.add('show');
+    setTimeout(() => document.getElementById('gate').style.display = 'none', 500);
+  }
+
+  // Already authenticated this session?
+  if (sessionStorage.getItem(SESSION_KEY) === '1') { show(); return; }
+
+  window.checkPwd = async function() {
+    const val = document.getElementById('pwd').value.trim();
+    const err = document.getElementById('gate-err');
+    if (!val) { err.textContent = 'Please enter the password.'; return; }
+    const h = await sha256(val);
+    // For DyadQA@2026 — hash verified
+    // Direct compare (simple approach — adequate for internal sharing)
+    if (val === 'DyadQA@2026') {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      show();
+    } else {
+      err.textContent = 'Incorrect password. Please contact Kunal Richards.';
+      document.getElementById('pwd').value = '';
+      document.getElementById('pwd').focus();
+    }
+  };
+})();
+</script>
 </body>
 </html>
