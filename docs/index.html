@@ -4,409 +4,407 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>QA KPI Dashboard | Dyad Inc — Confidential</title>
+<title>QA KPI Dashboard | Dyad Inc</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44' fill='none'%3E%3Cpath d='M22,2 L2,22 L22,42 L22,33 L11,22 L22,11 Z' fill='%236CBD45'/%3E%3Cpath d='M22,2 L42,22 L22,42 L22,33 L33,22 L22,11 Z' fill='%230D2340'/%3E%3C/svg%3E">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0a1628;--green:#006644;--green-light:#00875a;--green-bg:#e3fcef;
+  --navy:#0D2340;--navy2:#0a1a30;
+  --green:#6CBD45;--green-d:#4a9a2e;--green-bg:#f0f9e8;
+  --teal:#00875a;--teal-bg:#e3fcef;
   --blue:#0052cc;--amber:#ff8b00;--red:#de350b;--purple:#6554c0;
   --text:#172b4d;--sub:#5e6c84;--border:#dfe1e6;--bg:#f0f2f5;
 }
 body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;background:var(--bg);color:var(--text)}
 
-/* ── PASSWORD GATE ── */
-#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,#0d2137 50%,#062a1a 100%);
-  display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s}
+/* ── GATE ── */
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,#0a1e35 40%,#071a0f 100%);
+  display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
 #gate.hide{opacity:0;pointer-events:none}
-.gate-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:16px;
-  padding:40px 48px;width:380px;text-align:center;backdrop-filter:blur(12px)}
-.gate-logo{width:56px;height:56px;background:#fff;border-radius:12px;display:inline-flex;
-  align-items:center;justify-content:center;font-size:24px;font-weight:900;color:var(--green);margin-bottom:20px}
-.gate-title{color:#fff;font-size:20px;font-weight:800;margin-bottom:4px}
-.gate-sub{color:rgba(255,255,255,0.5);font-size:12px;margin-bottom:28px}
-.gate-label{display:block;text-align:left;color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;
-  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.gate-input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);
-  border-radius:8px;color:#fff;font-size:14px;outline:none;transition:border-color .2s}
-.gate-input:focus{border-color:var(--green-light)}
-.gate-btn{width:100%;margin-top:16px;padding:12px;background:linear-gradient(135deg,var(--green),var(--green-light));
-  color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
-.gate-btn:hover{opacity:.9}
+.gate-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:44px 52px;width:400px;text-align:center;backdrop-filter:blur(16px);
+  box-shadow:0 24px 64px rgba(0,0,0,0.5)}
+.gate-diamond{margin:0 auto 22px;display:block}
+.gate-title{color:#fff;font-size:22px;font-weight:800;margin-bottom:4px}
+.gate-sub{color:rgba(255,255,255,0.45);font-size:12px;margin-bottom:30px;line-height:1.6}
+.gate-label{display:block;text-align:left;color:rgba(255,255,255,0.55);font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.gate-input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.07);
+  border:1.5px solid rgba(255,255,255,0.13);border-radius:9px;color:#fff;font-size:14px;
+  outline:none;transition:border-color .25s;letter-spacing:1px}
+.gate-input:focus{border-color:var(--green)}
+.gate-input::placeholder{letter-spacing:0;color:rgba(255,255,255,0.3)}
+.gate-btn{width:100%;margin-top:14px;padding:13px;
+  background:linear-gradient(135deg,var(--green),var(--green-d));
+  color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 14px rgba(108,189,69,0.35)}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,189,69,0.45)}
 .gate-err{color:#ff5630;font-size:12px;margin-top:10px;min-height:18px}
-.gate-lock{color:rgba(255,255,255,0.25);font-size:11px;margin-top:20px}
+.gate-note{color:rgba(255,255,255,0.2);font-size:10.5px;margin-top:22px;line-height:1.7}
 
-/* ── MAIN DASHBOARD ── */
+/* ── APP ── */
 #app{display:none}
 #app.show{display:block}
 
-.header{background:linear-gradient(135deg,var(--navy) 0%,var(--green) 65%,var(--green-light) 100%);
-  color:#fff;padding:28px 40px 22px;position:relative;overflow:hidden}
-.header::after{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;
-  border-radius:50%;background:rgba(255,255,255,0.03);pointer-events:none}
-.header-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-.logo{width:46px;height:46px;background:#fff;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;font-size:20px;font-weight:900;color:var(--green);flex-shrink:0}
-.header h1{font-size:22px;font-weight:900;line-height:1.1}
-.header-sub{font-size:10.5px;opacity:.7;letter-spacing:1.2px;text-transform:uppercase;margin-top:3px}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.badge{padding:3px 12px;border-radius:20px;font-size:10.5px;font-weight:700}
-.badge-conf{background:rgba(255,87,34,0.3);border:1px solid rgba(255,87,34,0.5);color:#ffccbc}
-.badge-month{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff}
-.header-meta{font-size:11.5px;opacity:.8;line-height:2}
+/* HEADER */
+.header{background:linear-gradient(135deg,var(--navy) 0%,#0f3020 55%,#1a4a28 100%);
+  color:#fff;padding:26px 40px 22px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+  border-radius:50%;background:rgba(108,189,69,0.06);pointer-events:none}
+.header::after{content:'';position:absolute;left:-40px;bottom:-60px;width:200px;height:200px;
+  border-radius:50%;background:rgba(255,255,255,0.02);pointer-events:none}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px}
+.header-brand{display:flex;align-items:center;gap:14px}
+.header-titles h1{font-size:21px;font-weight:900;line-height:1.1;letter-spacing:-.2px}
+.header-titles .sub{font-size:10px;opacity:.6;letter-spacing:1.4px;text-transform:uppercase;margin-top:3px}
+.header-stat{text-align:right}
+.header-stat .big{font-size:32px;font-weight:900;color:var(--green);line-height:1}
+.header-stat .lbl{font-size:9.5px;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.badges{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.badge{padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700}
+.b-conf{background:rgba(222,53,11,0.25);border:1px solid rgba(222,53,11,0.4);color:#ffb3a0}
+.b-tag{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.9)}
+.b-live{background:rgba(108,189,69,0.2);border:1px solid rgba(108,189,69,0.4);color:#c5f0a4}
+.header-meta{font-size:11.5px;opacity:.75;line-height:2;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px}
 
-.insight-bar{background:#fff;border-bottom:4px solid var(--green);
-  padding:14px 40px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-  box-shadow:0 3px 12px rgba(0,0,0,0.07)}
-.insight{flex:1;min-width:180px;display:flex;align-items:center;gap:10px;
-  padding:10px 14px;border-radius:8px;background:var(--green-bg);border-left:4px solid var(--green)}
-.insight.amber{background:#fffbeb;border-left-color:var(--amber)}
-.insight.purple{background:#f3f0ff;border-left-color:var(--purple)}
-.insight .i-num{font-size:26px;font-weight:900;color:var(--green);line-height:1;white-space:nowrap}
-.insight.amber .i-num{color:var(--amber)}
-.insight.purple .i-num{color:var(--purple)}
-.insight .i-text{font-size:11px;color:var(--sub);line-height:1.5;font-weight:600}
-.insight .i-text strong{display:block;font-size:12.5px;color:var(--text)}
+/* ROI STRIP */
+.roi{background:linear-gradient(135deg,#0D2340,#102b1a);color:#fff;
+  padding:14px 40px;display:flex;gap:0;overflow:hidden}
+.roi-item{flex:1;text-align:center;padding:12px 8px;border-right:1px solid rgba(255,255,255,0.08)}
+.roi-item:last-child{border-right:none}
+.roi-num{font-size:24px;font-weight:900;color:var(--green);line-height:1}
+.roi-lbl{font-size:9.5px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:4px;line-height:1.4}
 
-.body{padding:24px 40px 44px}
+/* SUMMARY INSIGHTS */
+.summary{background:#fff;border-bottom:4px solid var(--green);
+  padding:16px 40px;display:flex;gap:12px;flex-wrap:wrap;
+  box-shadow:0 3px 12px rgba(0,0,0,0.08)}
+.ins{flex:1;min-width:200px;display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-radius:10px;border-left:5px solid var(--green);background:var(--green-bg)}
+.ins.amber{background:#fffbeb;border-left-color:var(--amber)}
+.ins.purple{background:#f3f0ff;border-left-color:var(--purple)}
+.ins-num{font-size:32px;font-weight:900;color:var(--green);line-height:1;white-space:nowrap;min-width:60px;text-align:center}
+.ins.amber .ins-num{color:var(--amber)}.ins.purple .ins-num{color:var(--purple)}
+.ins-text .ins-title{font-size:12.5px;font-weight:800;color:var(--text);margin-bottom:2px}
+.ins-text .ins-desc{font-size:11px;color:var(--sub);line-height:1.5}
 
-.section-header{display:flex;align-items:center;gap:10px;margin:28px 0 14px}
-.section-line{flex:1;height:2px;background:linear-gradient(90deg,var(--green),transparent)}
-.section-title{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap;padding:0 4px}
-.section-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;
-  justify-content:center;font-size:13px;flex-shrink:0}
-.icon-green{background:var(--green-bg)}.icon-amber{background:#fffbeb}.icon-purple{background:#f3f0ff}
+/* BODY */
+.body{padding:22px 40px 44px}
 
-.kpi-row{display:grid;gap:14px;margin-bottom:6px}
-.kpi-row-3{grid-template-columns:repeat(3,1fr)}
-.kpi-row-2{grid-template-columns:repeat(2,1fr)}
-@media(max-width:700px){.kpi-row-3,.kpi-row-2{grid-template-columns:1fr}}
+.sec{display:flex;align-items:center;gap:10px;margin:28px 0 16px}
+.sec-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sec-icon.g{background:var(--green-bg)}.sec-icon.a{background:#fffbeb}.sec-icon.p{background:#f3f0ff}
+.sec-title{font-size:14px;font-weight:800;color:var(--text);white-space:nowrap}
+.sec-line{flex:1;height:2px;background:linear-gradient(90deg,var(--green) 0%,transparent 100%);opacity:.4}
 
-.kpi{background:#fff;border-radius:12px;padding:20px 18px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.07);position:relative;overflow:hidden}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
-.kpi.g::before{background:var(--green)}
-.kpi.b::before{background:var(--blue)}
-.kpi.a::before{background:var(--amber)}
-.kpi.r::before{background:var(--red)}
-.kpi.p::before{background:var(--purple)}
-.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:8px}
-.kpi-num{font-size:40px;font-weight:900;line-height:1;color:var(--text)}
-.kpi-num.green{color:var(--green)}.kpi-num.blue{color:var(--blue)}
-.kpi-num.amber{color:var(--amber)}.kpi-num.red{color:var(--red)}.kpi-num.purple{color:var(--purple)}
-.kpi-desc{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5}
-.kpi-bar{margin-top:12px;height:5px;background:#f0f2f5;border-radius:3px;overflow:hidden}
-.kpi-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
-.kpi-pct{font-size:10px;font-weight:700;color:var(--sub);margin-top:4px}
+/* KPI CARDS */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:720px){.grid3,.grid2{grid-template-columns:1fr}}
 
-.tbl-wrap{background:#fff;border-radius:12px;overflow:hidden;
-  box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-top:10px}
+.card{background:#fff;border-radius:14px;padding:22px 20px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.07);position:relative;overflow:hidden;
+  transition:box-shadow .2s,transform .2s}
+.card:hover{box-shadow:0 6px 24px rgba(0,0,0,0.12);transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0}
+.card.g::before{background:linear-gradient(90deg,var(--green),var(--green-d))}
+.card.b::before{background:linear-gradient(90deg,var(--blue),#0065ff)}
+.card.a::before{background:linear-gradient(90deg,var(--amber),#ffab00)}
+.card.r::before{background:linear-gradient(90deg,var(--red),#ff5630)}
+.card.p::before{background:linear-gradient(90deg,var(--purple),#8777d9)}
+.card-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);margin-bottom:10px}
+.card-num{font-size:44px;font-weight:900;line-height:1;letter-spacing:-1px}
+.card-num.g{color:var(--green)}.card-num.b{color:var(--blue)}
+.card-num.a{color:var(--amber)}.card-num.r{color:var(--red)}.card-num.p{color:var(--purple)}
+.card-desc{font-size:11px;color:var(--sub);margin-top:7px;line-height:1.6}
+.bar-wrap{margin-top:12px;height:6px;background:#f0f2f5;border-radius:3px;overflow:hidden}
+.bar{height:100%;border-radius:3px}
+.bar.g{background:linear-gradient(90deg,var(--green),var(--green-d))}
+.bar.b{background:linear-gradient(90deg,var(--blue),#0065ff)}
+.bar.a{background:linear-gradient(90deg,var(--amber),#ffab00)}
+.bar.r{background:linear-gradient(90deg,var(--red),#ff5630)}
+.bar.p{background:linear-gradient(90deg,var(--purple),#8777d9)}
+.bar-pct{font-size:10px;font-weight:700;color:var(--sub);margin-top:5px}
+
+/* TABLE */
+.tbl-wrap{background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,0.07);margin-top:10px}
 table{width:100%;border-collapse:collapse}
-thead th{padding:11px 16px;background:var(--green);color:#fff;font-size:10px;font-weight:700;
+thead{background:linear-gradient(90deg,var(--navy),#0f3020)}
+thead th{padding:12px 16px;color:#fff;font-size:9.5px;font-weight:700;
   text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
-tbody td{padding:11px 16px;border-bottom:1px solid #f4f5f7;vertical-align:middle;font-size:12px}
+tbody td{padding:11px 16px;border-bottom:1px solid #f4f5f7;font-size:12px;vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:#f8fff9}
-.num-cell{text-align:center;font-size:17px;font-weight:900}
-.cat{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700}
-.cat-tc{background:var(--green-bg);color:var(--green)}
+tbody tr:hover{background:#f8fff4}
+.num-cell{text-align:center;font-size:18px;font-weight:900}
+.cat{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:9.5px;font-weight:700;white-space:nowrap}
+.cat-tc{background:var(--green-bg);color:var(--green-d)}
 .cat-def{background:#ffebe6;color:#bf2600}
 .cat-auto{background:#f3f0ff;color:var(--purple)}
 .src{font-size:11px;color:var(--sub)}
+.row-num{font-weight:800;color:var(--sub);font-size:11px}
 
-.footer{text-align:center;font-size:11px;color:#97a0af;padding:20px 40px 10px;
-  border-top:1px solid var(--border);line-height:2}
-.conf-banner{background:#fff8e1;border:1px solid #ffd54f;border-left:5px solid var(--amber);
-  border-radius:8px;padding:10px 16px;margin:16px 0 0;font-size:11.5px;color:#5d4037;line-height:1.8}
+/* CONF BANNER */
+.conf{background:#fff8e1;border:1px solid #ffd54f;border-left:5px solid var(--amber);
+  border-radius:10px;padding:12px 18px;margin:20px 0 0;font-size:11.5px;color:#5d4037;line-height:1.9}
+
+/* FOOTER */
+footer{background:var(--navy);color:rgba(255,255,255,0.5);
+  text-align:center;padding:20px 40px;font-size:11px;line-height:2}
+footer strong{color:rgba(255,255,255,0.8)}
+footer .dyad-f{display:inline-flex;align-items:center;gap:8px;margin-bottom:6px;vertical-align:middle}
 
 @media print{
   #gate{display:none!important}
-  body{background:#fff}
-  .body{padding:16px 24px}
-  .insight-bar{padding:10px 24px}
-  .header{padding:20px 24px}
+  .header::before,.header::after{display:none}
+  .card:hover{transform:none;box-shadow:none}
+  .body{padding:14px 24px}
 }
 </style>
 </head>
 <body>
 
-<!-- PASSWORD GATE -->
+<!-- GATE -->
 <div id="gate">
-  <div class="gate-box">
-    <div class="gate-logo">D</div>
+  <div class="gate-card">
+    <svg class="gate-diamond" width="60" height="60" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22,2 L2,22 L22,42 L22,33 L11,22 L22,11 Z" fill="#6CBD45"/>
+      <path d="M22,2 L42,22 L22,42 L22,33 L33,22 L22,11 Z" fill="#0D2340"/>
+    </svg>
     <div class="gate-title">QA KPI Dashboard</div>
-    <div class="gate-sub">Dyad Inc — Confidential &nbsp;|&nbsp; Authorised Personnel Only</div>
+    <div class="gate-sub">Dyad Inc &nbsp;·&nbsp; Nexsure Platform<br>Confidential — Authorised Access Only</div>
     <label class="gate-label" for="pwd">Access Password</label>
     <input id="pwd" class="gate-input" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPwd()">
-    <button class="gate-btn" onclick="checkPwd()">Access Dashboard</button>
+    <button class="gate-btn" onclick="checkPwd()">Access Dashboard &rarr;</button>
     <div class="gate-err" id="gate-err"></div>
-    <div class="gate-lock">&#128274; Secured &nbsp;|&nbsp; Do not share this link publicly</div>
+    <div class="gate-note">&#128274; Secured &nbsp;·&nbsp; Do not share outside Dyad Inc<br>Contact Kunal Richards for access</div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- APP -->
 <div id="app">
+
 <div class="header">
   <div class="header-top">
-    <div class="logo">D</div>
-    <div>
-      <h1>QA KPI Dashboard</h1>
-      <div class="header-sub">Dyad Inc &nbsp;·&nbsp; Nexsure Platform &nbsp;·&nbsp; Quality Engineering Metrics</div>
+    <div class="header-brand">
+      <svg width="52" height="52" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22,2 L2,22 L22,42 L22,33 L11,22 L22,11 Z" fill="#6CBD45"/>
+        <path d="M22,2 L42,22 L22,42 L22,33 L33,22 L22,11 Z" fill="#ffffff" fill-opacity="0.9"/>
+      </svg>
+      <div class="header-titles">
+        <h1>QA KPI Dashboard</h1>
+        <div class="sub">Dyad Inc &nbsp;·&nbsp; Nexsure Platform &nbsp;·&nbsp; Quality Engineering Metrics</div>
+      </div>
+    </div>
+    <div class="header-stat">
+      <div class="big">April 2026</div>
+      <div class="lbl">Reporting Period</div>
     </div>
   </div>
   <div class="badges">
-    <span class="badge badge-conf">&#128274; Confidential</span>
-    <span class="badge badge-month">April 2026</span>
-    <span class="badge badge-month">Monthly Report</span>
-    <span class="badge badge-month">Nexsure Platform</span>
+    <span class="badge b-conf">&#128274; Confidential</span>
+    <span class="badge b-tag">Monthly Report</span>
+    <span class="badge b-tag">Nexsure Platform</span>
+    <span class="badge b-tag">Zephyr Scale · Jira · DyadTestPro</span>
   </div>
   <div class="header-meta">
-    <strong>Prepared by:</strong> Kunal Richards, Sr QA Engineer, Dyad Inc &nbsp;&nbsp;
-    <strong>Reviewed by:</strong> Heena Vaghela, QA Manager &nbsp;&nbsp;
+    <strong>Prepared by:</strong> Kunal Richards, Sr QA Engineer, Dyad Inc &emsp;
+    <strong>Reviewed by:</strong> Heena Vaghela, QA Manager &emsp;
     <strong>Last Updated:</strong> 6 May 2026
   </div>
 </div>
 
-<div class="insight-bar">
-  <div class="insight">
-    <div class="i-num">959</div>
-    <div class="i-text"><strong>Total Test Cases</strong>737 AI-generated · 222 manual<br>across 58 Jira tickets</div>
+<!-- ROI STRIP -->
+<div class="roi">
+  <div class="roi-item">
+    <div class="roi-num">737</div>
+    <div class="roi-lbl">AI-Generated<br>Test Cases</div>
   </div>
-  <div class="insight amber">
-    <div class="i-num">265</div>
-    <div class="i-text"><strong>Total Defects Raised</strong>65 internal · 64 production<br>April 2026 — all projects</div>
+  <div class="roi-item">
+    <div class="roi-num">343h 56m</div>
+    <div class="roi-lbl">Manual Writing<br>Time Saved</div>
   </div>
-  <div class="insight purple">
-    <div class="i-num">10,224</div>
-    <div class="i-text"><strong>Automated Executions</strong>852 cases × 12 runs<br>+53 new automated TCs added</div>
+  <div class="roi-item">
+    <div class="roi-num">76.8%</div>
+    <div class="roi-lbl">AI Coverage<br>Rate</div>
+  </div>
+  <div class="roi-item">
+    <div class="roi-num">58</div>
+    <div class="roi-lbl">Jira Tickets<br>Covered</div>
+  </div>
+  <div class="roi-item">
+    <div class="roi-num">~$10.44</div>
+    <div class="roi-lbl">AI Generation<br>Cost (April)</div>
+  </div>
+  <div class="roi-item">
+    <div class="roi-num">46%</div>
+    <div class="roi-lbl">TC Authoring<br>Time Reduction</div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary">
+  <div class="ins">
+    <div class="ins-num">959</div>
+    <div class="ins-text">
+      <div class="ins-title">Total Test Cases Generated</div>
+      <div class="ins-desc">737 AI-generated · 222 manual<br>Across 58 Jira tickets — April 2026</div>
+    </div>
+  </div>
+  <div class="ins amber">
+    <div class="ins-num">265</div>
+    <div class="ins-text">
+      <div class="ins-title">Total Defects Raised</div>
+      <div class="ins-desc">65 internal · 64 production (PRDS)<br>All Jira projects — April 2026</div>
+    </div>
+  </div>
+  <div class="ins purple">
+    <div class="ins-num">10,224</div>
+    <div class="ins-text">
+      <div class="ins-title">Automated TC Executions</div>
+      <div class="ins-desc">852 automated cases × 12 runs<br>+53 new TCs added to suite</div>
+    </div>
   </div>
 </div>
 
 <div class="body">
 
   <!-- TEST CASE CREATION -->
-  <div class="section-header">
-    <div class="section-icon icon-green">&#9989;</div>
-    <div class="section-title">Test Case Creation</div>
-    <div class="section-line"></div>
+  <div class="sec">
+    <div class="sec-icon g">&#9989;</div>
+    <div class="sec-title">Test Case Creation</div>
+    <div class="sec-line"></div>
   </div>
-
-  <div class="kpi-row kpi-row-3">
-    <div class="kpi g">
-      <div class="kpi-label">Total Test Cases Generated</div>
-      <div class="kpi-num green">959</div>
-      <div class="kpi-desc">All test cases created in April 2026<br>Source: Zephyr Scale</div>
+  <div class="grid3">
+    <div class="card g">
+      <div class="card-label">Total Test Cases Generated</div>
+      <div class="card-num g">959</div>
+      <div class="card-desc">All TCs created in April 2026<br>Source: Zephyr Scale (all projects)</div>
     </div>
-    <div class="kpi g">
-      <div class="kpi-label">AI-Generated (DyadTestPro)</div>
-      <div class="kpi-num green">737</div>
-      <div class="kpi-desc">
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:76.8%;background:var(--green)"></div></div>
-        <div class="kpi-pct">76.8% of total &nbsp;·&nbsp; Claude Sonnet 4.6</div>
-      </div>
+    <div class="card g">
+      <div class="card-label">AI-Generated — DyadTestPro</div>
+      <div class="card-num g">737</div>
+      <div class="bar-wrap"><div class="bar g" style="width:76.8%"></div></div>
+      <div class="bar-pct">76.8% of total &nbsp;·&nbsp; Claude Sonnet 4.6</div>
     </div>
-    <div class="kpi b">
-      <div class="kpi-label">Manual (Non-AI) Test Cases</div>
-      <div class="kpi-num blue">222</div>
-      <div class="kpi-desc">
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:23.2%;background:var(--blue)"></div></div>
-        <div class="kpi-pct">23.2% of total &nbsp;·&nbsp; Written 1–15 Apr (pre-tool adoption)</div>
-      </div>
+    <div class="card b">
+      <div class="card-label">Manual (Non-AI) Test Cases</div>
+      <div class="card-num b">222</div>
+      <div class="bar-wrap"><div class="bar b" style="width:23.2%"></div></div>
+      <div class="bar-pct">23.2% of total &nbsp;·&nbsp; Written 1–15 Apr (pre-adoption)</div>
     </div>
   </div>
 
   <!-- DEFECT METRICS -->
-  <div class="section-header">
-    <div class="section-icon icon-amber">&#128030;</div>
-    <div class="section-title">Defect Metrics</div>
-    <div class="section-line"></div>
+  <div class="sec" style="margin-top:26px">
+    <div class="sec-icon a">&#128030;</div>
+    <div class="sec-title">Defect Metrics</div>
+    <div class="sec-line"></div>
   </div>
-
-  <div class="kpi-row kpi-row-3">
-    <div class="kpi a">
-      <div class="kpi-label">Total Defects Raised</div>
-      <div class="kpi-num amber">265</div>
-      <div class="kpi-desc">Internal + External combined<br>Source: Jira (All Projects)</div>
+  <div class="grid3">
+    <div class="card a">
+      <div class="card-label">Total Defects Raised</div>
+      <div class="card-num a">265</div>
+      <div class="card-desc">Internal + External combined<br>Source: Jira (All Projects)</div>
     </div>
-    <div class="kpi a">
-      <div class="kpi-label">Internal Defects</div>
-      <div class="kpi-num amber">65</div>
-      <div class="kpi-desc">
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:24.5%;background:var(--amber)"></div></div>
-        <div class="kpi-pct">24.5% of total &nbsp;·&nbsp; Jira (Internal Projects)</div>
-      </div>
+    <div class="card a">
+      <div class="card-label">Internal Defects</div>
+      <div class="card-num a">65</div>
+      <div class="bar-wrap"><div class="bar a" style="width:24.5%"></div></div>
+      <div class="bar-pct">24.5% of total &nbsp;·&nbsp; Jira Internal Projects</div>
     </div>
-    <div class="kpi r">
-      <div class="kpi-label">External / Production Defects</div>
-      <div class="kpi-num red">64</div>
-      <div class="kpi-desc">
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:24.2%;background:var(--red)"></div></div>
-        <div class="kpi-pct">24.2% of total &nbsp;·&nbsp; Jira (PRDS)</div>
-      </div>
+    <div class="card r">
+      <div class="card-label">External / Production Defects</div>
+      <div class="card-num r">64</div>
+      <div class="bar-wrap"><div class="bar r" style="width:24.2%"></div></div>
+      <div class="bar-pct">24.2% of total &nbsp;·&nbsp; Jira PRDS</div>
     </div>
   </div>
 
-  <!-- AUTOMATION COVERAGE -->
-  <div class="section-header">
-    <div class="section-icon icon-purple">&#9889;</div>
-    <div class="section-title">Automation Coverage</div>
-    <div class="section-line"></div>
+  <!-- AUTOMATION -->
+  <div class="sec" style="margin-top:26px">
+    <div class="sec-icon p">&#9889;</div>
+    <div class="sec-title">Automation Coverage</div>
+    <div class="sec-line"></div>
   </div>
-
-  <div class="kpi-row kpi-row-2">
-    <div class="kpi p">
-      <div class="kpi-label">New Automated TCs Executed / Added</div>
-      <div class="kpi-num purple">53</div>
-      <div class="kpi-desc">New automated test cases added to the regression suite<br>Source: Automation Reports / CI-CD</div>
+  <div class="grid2">
+    <div class="card p">
+      <div class="card-label">New Automated TCs Executed / Added</div>
+      <div class="card-num p">53</div>
+      <div class="card-desc">New automated test cases added to regression suite<br>Source: Automation Reports / CI-CD</div>
     </div>
-    <div class="kpi p">
-      <div class="kpi-label">Total Automated TC Executions</div>
-      <div class="kpi-num purple">10,224</div>
-      <div class="kpi-desc">
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%;background:var(--purple)"></div></div>
-        <div class="kpi-pct">852 automated cases × 12 runs &nbsp;·&nbsp; Source: CI-CD Reports</div>
-      </div>
+    <div class="card p">
+      <div class="card-label">Total Automated TC Executions</div>
+      <div class="card-num p">10,224</div>
+      <div class="bar-wrap"><div class="bar p" style="width:100%"></div></div>
+      <div class="bar-pct">852 automated cases × 12 runs &nbsp;·&nbsp; CI-CD Reports</div>
     </div>
   </div>
 
-  <!-- FULL METRICS TABLE -->
-  <div class="section-header" style="margin-top:32px">
-    <div class="section-icon icon-green">&#128203;</div>
-    <div class="section-title">Full KPI Reference Table — April 2026</div>
-    <div class="section-line"></div>
+  <!-- FULL TABLE -->
+  <div class="sec" style="margin-top:32px">
+    <div class="sec-icon g">&#128203;</div>
+    <div class="sec-title">Full KPI Reference Table — April 2026</div>
+    <div class="sec-line"></div>
   </div>
-
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr>
-          <th style="width:36px">#</th>
-          <th>Metric Category</th>
-          <th>Requirement Description</th>
-          <th>Month</th>
-          <th>Data Source</th>
-          <th style="text-align:center;width:90px">Value</th>
-        </tr>
+        <tr><th>#</th><th>Metric Category</th><th>Requirement Description</th><th>Month</th><th>Data Source</th><th style="text-align:center">Value</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">1</td>
-          <td><span class="cat cat-tc">&#9989; Test Case Creation</span></td>
-          <td>Total number of test cases generated</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Test Management Tool (Zephyr Scale)</td>
-          <td class="num-cell" style="color:var(--green)">959</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">2</td>
-          <td><span class="cat cat-tc">&#9989; Test Case Creation</span></td>
-          <td>Number of test cases generated using AI</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">AI Test Generation Tool (DyadTestPro)</td>
-          <td class="num-cell" style="color:var(--green)">737</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">3</td>
-          <td><span class="cat cat-tc">&#9989; Test Case Creation</span></td>
-          <td>Number of manual (non-AI) test cases</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Test Management Tool (Zephyr Scale)</td>
-          <td class="num-cell" style="color:var(--blue)">222</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">4</td>
-          <td><span class="cat cat-def">&#128030; Defect Metrics</span></td>
-          <td>Total number of defects raised (Internal + External)</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Jira (All Projects)</td>
-          <td class="num-cell" style="color:var(--amber)">265</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">5</td>
-          <td><span class="cat cat-def">&#128030; Defect Metrics</span></td>
-          <td>Number of internal defects raised</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Jira (Internal Projects)</td>
-          <td class="num-cell" style="color:var(--amber)">65</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">6</td>
-          <td><span class="cat cat-def">&#128030; Defect Metrics</span></td>
-          <td>Number of external / production defects raised</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Jira (PRDS)</td>
-          <td class="num-cell" style="color:var(--red)">64</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">7</td>
-          <td><span class="cat cat-auto">&#9889; Automation</span></td>
-          <td>New automated test cases executed / added</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Automation Reports / CI-CD</td>
-          <td class="num-cell" style="color:var(--purple)">53</td>
-        </tr>
-        <tr>
-          <td style="font-weight:800;color:var(--sub)">8</td>
-          <td><span class="cat cat-auto">&#9889; Automation</span></td>
-          <td>Total number of new automated test cases executed</td>
-          <td style="white-space:nowrap">April 2026</td>
-          <td class="src">Automation Reports / CI-CD (852 × 12)</td>
-          <td class="num-cell" style="color:var(--purple)">10,224</td>
-        </tr>
+        <tr><td class="row-num">1</td><td><span class="cat cat-tc">&#9989; Test Case Creation</span></td><td>Total number of test cases generated</td><td style="white-space:nowrap">April 2026</td><td class="src">Test Management Tool (Zephyr Scale)</td><td class="num-cell" style="color:var(--green)">959</td></tr>
+        <tr><td class="row-num">2</td><td><span class="cat cat-tc">&#9989; Test Case Creation</span></td><td>Number of test cases generated using AI</td><td style="white-space:nowrap">April 2026</td><td class="src">AI Test Generation Tool (DyadTestPro)</td><td class="num-cell" style="color:var(--green)">737</td></tr>
+        <tr><td class="row-num">3</td><td><span class="cat cat-tc">&#9989; Test Case Creation</span></td><td>Number of manual (non-AI) test cases</td><td style="white-space:nowrap">April 2026</td><td class="src">Test Management Tool (Zephyr Scale)</td><td class="num-cell" style="color:var(--blue)">222</td></tr>
+        <tr><td class="row-num">4</td><td><span class="cat cat-def">&#128030; Defect Metrics</span></td><td>Total number of defects raised (Internal + External)</td><td style="white-space:nowrap">April 2026</td><td class="src">Jira (All Projects)</td><td class="num-cell" style="color:var(--amber)">265</td></tr>
+        <tr><td class="row-num">5</td><td><span class="cat cat-def">&#128030; Defect Metrics</span></td><td>Number of internal defects raised</td><td style="white-space:nowrap">April 2026</td><td class="src">Jira (Internal Projects)</td><td class="num-cell" style="color:var(--amber)">65</td></tr>
+        <tr><td class="row-num">6</td><td><span class="cat cat-def">&#128030; Defect Metrics</span></td><td>Number of external / production defects raised</td><td style="white-space:nowrap">April 2026</td><td class="src">Jira (PRDS)</td><td class="num-cell" style="color:var(--red)">64</td></tr>
+        <tr><td class="row-num">7</td><td><span class="cat cat-auto">&#9889; Automation</span></td><td>New automated test cases executed / added</td><td style="white-space:nowrap">April 2026</td><td class="src">Automation Reports / CI-CD</td><td class="num-cell" style="color:var(--purple)">53</td></tr>
+        <tr><td class="row-num">8</td><td><span class="cat cat-auto">&#9889; Automation</span></td><td>Total number of new automated test cases executed</td><td style="white-space:nowrap">April 2026</td><td class="src">Automation Reports / CI-CD (852 × 12)</td><td class="num-cell" style="color:var(--purple)">10,224</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="conf-banner">
+  <div class="conf">
     &#128274; <strong>Confidential — Internal Use Only</strong> &nbsp;|&nbsp;
-    This report contains proprietary QA metrics for the Nexsure platform. Do not distribute outside Dyad Inc.
-    Data sourced from Zephyr Scale (Smartbear), Jira (Atlassian), and DyadTestPro (AI Test Generation).
+    Proprietary QA metrics for the Nexsure insurance management platform.
+    Do not distribute outside Dyad Inc without prior approval from QA Manager.
+    Data sourced from Zephyr Scale, Jira (Atlassian), DyadTestPro (AI), and CI-CD Automation Reports.
   </div>
 
 </div>
 
-<div class="footer">
-  <strong>QA KPI Dashboard</strong> &nbsp;|&nbsp; Nexsure Insurance Management Platform &nbsp;|&nbsp; Dyad Inc<br>
-  Prepared by <strong>Kunal Richards</strong>, Sr QA Engineer &nbsp;·&nbsp;
-  Reviewed by <strong>Heena Vaghela</strong>, QA Manager &nbsp;·&nbsp; April 2026<br>
-  <span style="font-size:10px">Data sources: Zephyr Scale · Jira · DyadTestPro · CI-CD Automation Reports</span>
-</div>
+<footer>
+  <div>
+    <svg class="dyad-f" width="90" height="26" viewBox="0 0 158 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22,2 L42,22 L22,42 L22,33 L33,22 L22,11 Z" fill="#0D2340"/>
+      <path d="M22,2 L2,22 L22,42 L22,33 L11,22 L22,11 Z" fill="#6CBD45"/>
+      <text x="54" y="32" font-family="'Segoe UI','Trebuchet MS',Arial,sans-serif" font-weight="700" font-size="27" fill="rgba(255,255,255,0.7)">dyad</text>
+    </svg>
+  </div>
+  <div><strong>QA KPI Dashboard</strong> &nbsp;·&nbsp; Nexsure Insurance Management Platform &nbsp;·&nbsp; Dyad Inc</div>
+  <div>Prepared by <strong>Kunal Richards</strong>, Sr QA Engineer &nbsp;·&nbsp; Reviewed by <strong>Heena Vaghela</strong>, QA Manager &nbsp;·&nbsp; April 2026</div>
+  <div style="margin-top:4px;font-size:10px;opacity:.5">Data: Zephyr Scale (Smartbear) &nbsp;·&nbsp; Jira (Atlassian) &nbsp;·&nbsp; DyadTestPro AI &nbsp;·&nbsp; CI-CD Automation</div>
+</footer>
 </div>
 
 <script>
 (function(){
-  const SESSION_KEY = 'dyadqa_auth';
-  // Password: DyadQA@2026  (change this hash if you change the password)
-  const HASH = '7d6b9b8c2a4f1e3d5c8b2e7f4a9c1d6b3e8f2a5d9c4b7e1f3a6d8c2b5e9f4a7';
-
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-
-  function show() {
+  const KEY='dyadqa_auth';
+  function show(){
     document.getElementById('gate').classList.add('hide');
     document.getElementById('app').classList.add('show');
-    setTimeout(() => document.getElementById('gate').style.display = 'none', 500);
+    setTimeout(()=>document.getElementById('gate').style.display='none',500);
   }
-
-  // Already authenticated this session?
-  if (sessionStorage.getItem(SESSION_KEY) === '1') { show(); return; }
-
-  window.checkPwd = async function() {
-    const val = document.getElementById('pwd').value.trim();
-    const err = document.getElementById('gate-err');
-    if (!val) { err.textContent = 'Please enter the password.'; return; }
-    const h = await sha256(val);
-    // For DyadQA@2026 — hash verified
-    // Direct compare (simple approach — adequate for internal sharing)
-    if (val === 'DyadQA@2026') {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      show();
-    } else {
-      err.textContent = 'Incorrect password. Please contact Kunal Richards.';
-      document.getElementById('pwd').value = '';
-      document.getElementById('pwd').focus();
-    }
+  if(sessionStorage.getItem(KEY)==='1'){show();return;}
+  window.checkPwd=function(){
+    const v=document.getElementById('pwd').value.trim();
+    const e=document.getElementById('gate-err');
+    if(!v){e.textContent='Please enter the password.';return;}
+    if(v==='DyadQA@2026'){sessionStorage.setItem(KEY,'1');show();}
+    else{e.textContent='Incorrect password. Contact Kunal Richards for access.';
+      document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
   };
 })();
 </script>
