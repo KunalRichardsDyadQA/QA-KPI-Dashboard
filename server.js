@@ -6,6 +6,18 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+app.use(express.json());
+
+app.post('/api/auth', (req, res) => {
+  const { password } = req.body || {};
+  const expected = process.env.DASHBOARD_PASSWORD || 'DyadQA@2026';
+  if (password === expected) {
+    res.json({ ok: true });
+  } else {
+    res.status(401).json({ ok: false });
+  }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 const ZEPHYR_BASE = process.env.ZEPHYR_BASE_URL;

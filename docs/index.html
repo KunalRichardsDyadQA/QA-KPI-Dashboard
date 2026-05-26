@@ -403,9 +403,12 @@ footer .dyad-f{display:inline-flex;align-items:center;gap:8px;margin-bottom:6px;
     const v=document.getElementById('pwd').value.trim();
     const e=document.getElementById('gate-err');
     if(!v){e.textContent='Please enter the password.';return;}
-    if(v==='DyadQA@2026'){sessionStorage.setItem(KEY,'1');show();}
-    else{e.textContent='Incorrect password. Contact Kunal Richards for access.';
-      document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
+    fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:v})})
+      .then(r=>r.json()).then(d=>{
+        if(d.ok){sessionStorage.setItem(KEY,'1');show();}
+        else{e.textContent='Incorrect password. Contact Kunal Richards for access.';
+          document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
+      }).catch(()=>{e.textContent='Server error. Please run the dashboard locally.';});
   };
 })();
 </script>
